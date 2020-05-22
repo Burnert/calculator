@@ -4,7 +4,7 @@ HTMLElement.prototype.content = function(...content) {
 	this.innerHTML = '';
 	content.forEach(part => {
 		if (part instanceof HTMLElement) {
-			this.innerHTML += part.outerHTML;
+			this.appendChild(part);
 		}
 		else {
 			this.innerHTML += part;
@@ -656,8 +656,36 @@ function cycleDisplaySymbols(buttonRef) {
 	};
 }
 
+function copyToClipboard(str) {
+	const el = document.createElement('textarea');
+	el.value = str;
+	document.body.appendChild(el);
+	el.select();
+	document.execCommand('copy');
+	document.body.removeChild(el);
+};
+function copyCurrentNumber(info) {
+	return e => {
+		copyToClipboard(getBaseFromNumber(currentNumber, currentBase));
+		showInfoBox(info, { x: e.clientX, y: e.clientY });
+	};
+}
+
 // Visual
 
+function showInfoBox(box, position) {
+	box.setStyle('display', 'flex');
+	box.setStyle('left', `${position.x}px`).setStyle('top', `${position.y}px`);
+	setTimeout(() => {
+		box.setStyle('opacity', '1');
+	}, 10);
+	setTimeout(() => {
+		box.setStyle('opacity', '0');
+		setTimeout(() => {
+			box.setStyle('display', 'none');
+		}, 300);
+	}, 2000);
+}
 function updateClearButton() {
 	clearButton.content(currentNumber != 0 ? 'CE' : 'C');
 }
@@ -994,15 +1022,6 @@ function buttonObj(id, disp, cb, color = 'default') {
 
 /* End Behaviour Object Creators */
 
-function copyToClipboard(str) {
-	const el = document.createElement('textarea');
-	el.value = str;
-	document.body.appendChild(el);
-	el.select();
-	document.execCommand('copy');
-	document.body.removeChild(el);
-};
-
 function mapButtons(buttons) {
 	return buttons.map(row => row.map(id => {
 		// Numbers
@@ -1124,6 +1143,10 @@ document.addEventListener('DOMContentLoaded', e => {
 			.content(commonBitNumbers.names[optBitNumber])
 			.appendTo(optionsSection);
 		case 'Copy':
+			const infoCopy = html('div')
+			.addClass('info-floating')
+			.content('Copied to clipboard!')
+			.appendTo(document.body);
 			return html('div')
 			.addClass('option-double-container')
 			.content(
@@ -1132,9 +1155,10 @@ document.addEventListener('DOMContentLoaded', e => {
 				.addClass('half')
 				.addClass('bg-transparent')
 				.addAttribute('title', 'Copy to clipboard')
+				.runFunc(button => button.onClick(copyCurrentNumber(infoCopy)))
 				.content(
 					html('i')
-					.addClass('icon-docs')
+					.addClass('icon-docs'),
 				),
 				html('div')
 				.addClass('option-button')
