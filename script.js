@@ -73,6 +73,9 @@ String.prototype.reverse = function() {
 Math.mod = function(a, b) {
 	return ((a % b) + b) % b;
 }
+function isOverflown(element) {
+	return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
+}
 function html(type) {
 	return document.createElement(type);
 }
@@ -198,6 +201,7 @@ let digitButtonCache = null;
 let baseSelectButtons = null;
 let optionButtons = null;
 let clearButton = null;
+let displayScrollButtons = null;
 
 let optShowSymbols = true;
 let optBitNumber = 0;
@@ -279,6 +283,34 @@ function updateEveryDisplay() {
 	updateBaseSelectDisplay();
 	updateBracketButton();
 }
+function initDisplayScroll() {
+	if (isOverflown(displayElement)) {
+		displayElement.addClass('scrollable');
+		displayElement.parentElement.addClass('scrollable');
+	}
+	else {
+		displayElement.removeClass('scrollable');
+		displayElement.parentElement.removeClass('scrollable');
+	}
+	if (isOverflown(expressionElement)) {
+		expressionElement.addClass('scrollable');
+		expressionElement.parentElement.addClass('scrollable');
+	}
+	else {
+		expressionElement.removeClass('scrollable');
+		expressionElement.parentElement.removeClass('scrollable');
+	}
+	displayElement.scroll({ left: 1000000 });
+	expressionElement.scroll({ left: 1000000 });
+}
+function scrollNumberDisplay(dir) {
+	const f = dir == 'right' ? 1 : dir == 'left' ? -1 : 0;
+	displayElement.scrollBy({ left: f * 300, behavior: 'smooth' });
+}
+function scrollExpressionDisplay(dir) {
+	const f = dir == 'right' ? 1 : dir == 'left' ? -1 : 0;
+	expressionElement.scrollBy({ left: f * 300, behavior: 'smooth' });
+}
 
 /* End Display */
 
@@ -324,6 +356,7 @@ function writeInput(input) {
 
 		updateClearButton();
 		updateEveryDisplay();
+		initDisplayScroll();
 	};
 }
 /**
@@ -338,6 +371,7 @@ function changeSign() {
 		nextNumber = false;
 
 		updateEveryDisplay();
+		initDisplayScroll();
 	};
 }
 /**
@@ -436,6 +470,7 @@ function insertOperation(operation) {
 		currentNumber = evalExpression(fullExpression);
 		cachedExpression = stringifyExpression(fullExpression);
 		updateEveryDisplay();
+		initDisplayScroll();
 	};
 }
 /**
@@ -483,6 +518,7 @@ function insertBracket(type) {
 			return;
 		}
 		updateEveryDisplay();
+		initDisplayScroll();
 		console.log('Current expression:', fullExpression);
 	};
 }
@@ -502,6 +538,7 @@ function clearEntryAll() {
 		}
 		updateClearButton();
 		updateEveryDisplay();
+		initDisplayScroll();
 	};
 }
 /**
@@ -522,6 +559,7 @@ function eraseEntry() {
 		}
 		updateClearButton();
 		updateEveryDisplay();
+		initDisplayScroll();
 	};
 }
 /**
@@ -552,8 +590,8 @@ function finishExpression() {
 		nextNumber = true;
 
 		updateEveryDisplay();
+		initDisplayScroll();
 
-		// const num = fullExpression[fullExpression.length - 2];
 		let num = 0;
 		const exprBeforeEq = fullExpression.slice(0, fullExpression.length - 1);
 		const lastOp = [];
@@ -598,6 +636,7 @@ function changeBaseFunction(id) {
 
 		disableDigitButtons(base);
 		updateEveryDisplay();
+		initDisplayScroll();
 
 		console.log(`Switched to Base${base} (${id})`);
 	};
@@ -625,6 +664,7 @@ function changeBitNumber(optNumber, buttonRef) {
 	currentNumber = toSigned(currentNumber, getCurrentBitNumber());
 
 	updateEveryDisplay();
+	initDisplayScroll();
 }
 /**
  * Select the next number of bits from the collection.
@@ -1128,9 +1168,11 @@ document.addEventListener('DOMContentLoaded', e => {
 	const optionsSection	= document.querySelector('.options-section');
 	const baseSection		= document.querySelector('.base-section');
 
-	expressionElement	= document.querySelector('.display .expression');
-	displayElement		= document.querySelector('.display .number-input');
-	baseSelectElement	= baseSection;
+	expressionElement		= document.querySelector('.display .expression .inner');
+	displayElement			= document.querySelector('.display .number-input .inner');
+	displayScrollButtons 	= document.querySelectorAll('.display .number-input .scroll img');
+	exprScrollButtons 		= document.querySelectorAll('.display .expression .scroll img');
+	baseSelectElement		= baseSection;
 
 	const buttonIds = [
 		['AND',  'A', 'LS', 'RS',  'CL',  'ER'],
@@ -1242,6 +1284,13 @@ document.addEventListener('DOMContentLoaded', e => {
 		}
 	});
 	changeNumberRange(optBitNumber);
+
+	displayScrollButtons.forEach((button, index) => {
+		button.onClick(index == 0 ? () => scrollNumberDisplay('left') : () => scrollNumberDisplay('right'));
+	});
+	exprScrollButtons.forEach((button, index) => {
+		button.onClick(index == 0 ? () => scrollExpressionDisplay('left') : () => scrollExpressionDisplay('right'));
+	});
 
 	clearDisplay();
 });
