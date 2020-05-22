@@ -657,18 +657,35 @@ function cycleDisplaySymbols(buttonRef) {
 }
 
 function copyToClipboard(str) {
-	const el = document.createElement('textarea');
+	const el = html('textarea');
 	el.value = str;
 	document.body.appendChild(el);
 	el.select();
 	document.execCommand('copy');
 	document.body.removeChild(el);
 };
+function pasteFromClipboard() {
+	const el = html('textarea');
+	document.body.appendChild(el);
+	el.select();
+	document.execCommand('paste');
+	const value = el.value;
+	document.body.removeChild(el);
+	return value;
+};
+function getNumberFromUser(input) {
+	console.log(input);
+}
 function copyCurrentNumber(info) {
 	return e => {
 		copyToClipboard(getBaseFromNumber(currentNumber, currentBase));
 		showInfoBox(info, { x: e.clientX, y: e.clientY });
 	};
+}
+function pasteToCurrentNumber(info) {
+	return e => {
+		getNumberFromUser(pasteFromClipboard());
+	}
 }
 
 // Visual
@@ -751,7 +768,7 @@ function evalExpression(expr) {
 	let expression = [...expr];
 	console.log('Current expression:', expression);
 
-	const evalGroup = (groupExpr) => {
+	const evalGroup = (groupExpr, debug = false) => {
 		// Evaluate single operand functions
 		const evalSingleOperand = (index, op) => {
 			// TODO: fix single operand ops in brackets
@@ -795,7 +812,47 @@ function evalExpression(expr) {
 			groupExpr = groupExpr.filter(value => value != '#DELETE');
 		}
 
-		// TODO: Sort expression
+		if (debug) console.log('GroupExpr after singleOp stage:', groupExpr);
+
+		// Do all calculations in order
+		operationOrder.forEach(orderOps => {
+			const orderOps1 = [...orderOps];
+			while (orderOps1.length) {
+				const orderOp = orderOps1.shift();
+				// Found current operation in expression
+				while (groupExpr.indexOf(orderOp) > -1) {
+					const opIndex = groupExpr.indexOf(orderOp);
+					// Expr group on the left
+					if (groupExpr[opIndex - 1] == 'RB') {
+						const nestedExprStart = findCorrespondingBracket(groupExpr, opIndex - 1);
+						const nestedExpr = groupExpr.slice(nestedExprStart, opIndex);
+						const nestedResult = evalGroup(nestedExpr);
+						groupExpr.splice(nestedExprStart, opIndex, nestedResult);
+					}
+					// Expr group on the right
+					if (groupExpr[opIndex + 1] == 'LB') {
+						const nestedExprEnd = findCorrespondingBracket(groupExpr, opIndex + 1);
+						if (nestedExprEnd == undefined) {
+							break;
+						}
+						const nestedExpr = groupExpr.slice(opIndex + 1, nestedExprEnd + 1);
+						const nestedResult = evalGroup(nestedExpr);
+						groupExpr.splice(opIndex + 1, nestedExprEnd + 1, nestedResult);
+					}
+					// If there is a number on both sides
+					if (groupExpr[opIndex - 1] != 'RB' && groupExpr[opIndex + 1] != 'LB' &&
+					typeof groupExpr[opIndex - 1] == 'number' && typeof groupExpr[opIndex + 1] == 'number') {
+						const opResult = operation(groupExpr[opIndex])(groupExpr[opIndex - 1], groupExpr[opIndex + 1]);
+						groupExpr.splice(opIndex - 1, 3, opResult);
+					}
+					else {
+						break;
+					}
+				}
+			}
+		});
+
+		if (debug) console.log('GroupExpr after order stage:', groupExpr);
 
 		let result = 0;
 
@@ -849,7 +906,7 @@ function evalExpression(expr) {
 		return result;
 	};
 
-	const result = evalGroup(expression);
+	const result = evalGroup(expression, true);
 	
 	console.log(`Result: ${result}`);
 	return result;
@@ -1147,6 +1204,10 @@ document.addEventListener('DOMContentLoaded', e => {
 			.addClass('info-floating')
 			.content('Copied to clipboard!')
 			.appendTo(document.body);
+			const infoPaste = html('div')
+			.addClass('info-floating')
+			.content('Pasted from clipboard!')
+			.appendTo(document.body);
 			return html('div')
 			.addClass('option-double-container')
 			.content(
@@ -1165,6 +1226,7 @@ document.addEventListener('DOMContentLoaded', e => {
 				.addClass('half')
 				.addClass('bg-transparent')
 				.addAttribute('title', 'Paste from clipboard')
+				.runFunc(button => button.onClick(pasteToCurrentNumber(infoPaste)))
 				.content(
 					html('span')
 					.addClass('icon-paste')
