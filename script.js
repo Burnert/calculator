@@ -771,6 +771,7 @@ function evalExpression(expr) {
 
 		let result = 0;
 
+		let first = true;
 		let currentOperation = null;
 		let last = null;
 
@@ -801,6 +802,9 @@ function evalExpression(expr) {
 					result = toSigned(currentOperation(result, groupResult), getCurrentBitNumber());
 					currentOperation = null;
 				}
+				else if (first) {
+					result = toSigned(groupResult, getCurrentBitNumber());
+				}
 			}
 			else if (currentOperation) {
 				result = toSigned(currentOperation(result, part), getCurrentBitNumber());
@@ -812,6 +816,7 @@ function evalExpression(expr) {
 			else if (part != 'LB') {
 				currentOperation = operation(part);
 			}
+			first = false;
 		}
 		return result;
 	};
