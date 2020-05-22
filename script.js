@@ -174,6 +174,16 @@ function findCorrespondingBracket(expr, index) {
 	}
 	return i;
 }
+function stringifyExpression(expr) {
+	const textArea = html('textarea')
+	.appendTo(document.body);
+	expr.forEach(val => {
+		textArea.innerHTML += String(opNames.hasKey(val) ? opNames[val] : symbolNames.hasKey(val) ? symbolNames[val] : val);
+	});
+	const exprStr = textArea.innerHTML;
+	textArea.remove();
+	return exprStr;
+}
 
 /* End Helpers */
 
@@ -196,7 +206,7 @@ let currentBase = 10;
 
 /** Array of numbers and operations */
 let fullExpression = [];
-let cachedExpression = '#';
+let cachedExpression = '';
 let lastOperation = null;
 
 let currentNumber = 0;
@@ -424,6 +434,7 @@ function insertOperation(operation) {
 			lastOperation = null;
 		}
 		currentNumber = evalExpression(fullExpression);
+		cachedExpression = stringifyExpression(fullExpression);
 		updateEveryDisplay();
 	};
 }
@@ -565,7 +576,7 @@ function finishExpression() {
 		if (hasDoubleOperandOperation) {
 			lastOperation = lastOp;
 		}
-		cachedExpression = JSON.stringify(fullExpression);
+		cachedExpression = stringifyExpression(fullExpression);
 		fullExpression = [];
 	};
 }
