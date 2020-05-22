@@ -994,6 +994,15 @@ function buttonObj(id, disp, cb, color = 'default') {
 
 /* End Behaviour Object Creators */
 
+function copyToClipboard(str) {
+	const el = document.createElement('textarea');
+	el.value = str;
+	document.body.appendChild(el);
+	el.select();
+	document.execCommand('copy');
+	document.body.removeChild(el);
+};
+
 function mapButtons(buttons) {
 	return buttons.map(row => row.map(id => {
 		// Numbers
@@ -1095,25 +1104,52 @@ document.addEventListener('DOMContentLoaded', e => {
 	});
 	changeBaseFunction(baseNumberToName(currentBase))();
 
-	const optionsMap = ['ShowSymbols',,'BitNumber'];
+	const optionsMap = ['ShowSymbols', 'BitNumber', 'sp', 'sp', 'sp', 'Copy'];
 	optionButtons = optionsMap.map(id => {
 		switch (id) {
 		case 'ShowSymbols':
 			return html('div')
-				.addClass('option-button')
-				.addClass('bg-transparent')
-				.addAttribute('title', 'Change Bitwise Display')
-				.runFunc(button => button.onClick(cycleDisplaySymbols(button)))
-				.content(displaySymbolsIcons[1])
-				.appendTo(optionsSection);
+			.addClass('option-button')
+			.addClass('bg-transparent')
+			.addAttribute('title', 'Change Bitwise Display')
+			.runFunc(button => button.onClick(cycleDisplaySymbols(button)))
+			.content(displaySymbolsIcons[1])
+			.appendTo(optionsSection);
 		case 'BitNumber':
 			return html('div')
+			.addClass('option-button')
+			.addClass('bg-transparent')
+			.addAttribute('title', `${commonBitNumbers[optBitNumber]}-bit number`)
+			.runFunc(button => button.onClick(cycleBitNumber(button)))
+			.content(commonBitNumbers.names[optBitNumber])
+			.appendTo(optionsSection);
+		case 'Copy':
+			return html('div')
+			.addClass('option-double-container')
+			.content(
+				html('div')
 				.addClass('option-button')
+				.addClass('half')
 				.addClass('bg-transparent')
-				.addAttribute('title', `${commonBitNumbers[optBitNumber]}-bit number`)
-				.runFunc(button => button.onClick(cycleBitNumber(button)))
-				.content(commonBitNumbers.names[optBitNumber])
-				.appendTo(optionsSection);
+				.addAttribute('title', 'Copy to clipboard')
+				.content(
+					html('i')
+					.addClass('icon-docs')
+				),
+				html('div')
+				.addClass('option-button')
+				.addClass('half')
+				.addClass('bg-transparent')
+				.addAttribute('title', 'Paste from clipboard')
+				.content(
+					html('span')
+					.addClass('icon-paste')
+				)
+			).appendTo(optionsSection);
+		case 'sp':
+			return html('div')
+			.addClass('option-spacer')
+			.appendTo(optionsSection);
 		}
 	});
 	changeNumberRange(optBitNumber);

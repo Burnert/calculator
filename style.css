@@ -213,6 +213,37 @@ input, select {
 .option-button:not(.disabled):hover {
 	border: 1px solid rgba(255, 255, 255, 0.15);
 }
+.option-button.half {
+	width: 44px;
+	height: 44px;
+}
+.option-spacer {
+	width: 100px;
+}
+.option-double-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	font-family: 'Roboto Mono', monospace;
+	font-weight: 400;
+	font-size: 20px;
+
+	width: 96px;
+	height: 46px;
+	line-height: 46px;
+	text-align: center;
+
+	margin: 2px;
+
+	border-color: rgba(255, 255, 255, 0.0);;
+
+	color: white;
+
+	user-select: none;
+
+	transition: 0.1s;
+}
 
 /* Error */
 .undef {
