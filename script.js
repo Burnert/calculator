@@ -196,6 +196,7 @@ let currentBase = 10;
 
 /** Array of numbers and operations */
 let fullExpression = [];
+let cachedExpression = '#';
 let lastOperation = null;
 
 let currentNumber = 0;
@@ -564,6 +565,7 @@ function finishExpression() {
 		if (hasDoubleOperandOperation) {
 			lastOperation = lastOp;
 		}
+		cachedExpression = JSON.stringify(fullExpression);
 		fullExpression = [];
 	};
 }
@@ -664,27 +666,16 @@ function copyToClipboard(str) {
 	document.execCommand('copy');
 	document.body.removeChild(el);
 };
-function pasteFromClipboard() {
-	const el = html('textarea');
-	document.body.appendChild(el);
-	el.select();
-	document.execCommand('paste');
-	const value = el.value;
-	document.body.removeChild(el);
-	return value;
-};
-function getNumberFromUser(input) {
-	console.log(input);
-}
 function copyCurrentNumber(info) {
 	return e => {
 		copyToClipboard(getBaseFromNumber(currentNumber, currentBase));
 		showInfoBox(info, { x: e.clientX, y: e.clientY });
 	};
 }
-function pasteToCurrentNumber(info) {
+function copyExpression(info) {
 	return e => {
-		getNumberFromUser(pasteFromClipboard());
+		copyToClipboard(cachedExpression);
+		showInfoBox(info, { x: e.clientX, y: e.clientY });
 	}
 }
 
@@ -1204,9 +1195,9 @@ document.addEventListener('DOMContentLoaded', e => {
 			.addClass('info-floating')
 			.content('Copied to clipboard!')
 			.appendTo(document.body);
-			const infoPaste = html('div')
+			const infoExpr = html('div')
 			.addClass('info-floating')
-			.content('Pasted from clipboard!')
+			.content('Copied expression to clipboard!')
 			.appendTo(document.body);
 			return html('div')
 			.addClass('option-double-container')
@@ -1225,11 +1216,11 @@ document.addEventListener('DOMContentLoaded', e => {
 				.addClass('option-button')
 				.addClass('half')
 				.addClass('bg-transparent')
-				.addAttribute('title', 'Paste from clipboard')
-				.runFunc(button => button.onClick(pasteToCurrentNumber(infoPaste)))
+				.addAttribute('title', 'Copy expression')
+				.runFunc(button => button.onClick(copyExpression(infoExpr)))
 				.content(
 					html('span')
-					.addClass('icon-paste')
+					.addClass('icon-hashtag')
 				)
 			).appendTo(optionsSection);
 		case 'sp':
