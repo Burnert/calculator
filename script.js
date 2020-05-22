@@ -830,13 +830,14 @@ function evalExpression(expr) {
 				const orderOp = orderOps1.shift();
 				// Found current operation in expression
 				while (groupExpr.indexOf(orderOp) > -1) {
-					const opIndex = groupExpr.indexOf(orderOp);
+					let opIndex = groupExpr.indexOf(orderOp);
 					// Expr group on the left
 					if (groupExpr[opIndex - 1] == 'RB') {
 						const nestedExprStart = findCorrespondingBracket(groupExpr, opIndex - 1);
 						const nestedExpr = groupExpr.slice(nestedExprStart, opIndex);
 						const nestedResult = evalGroup(nestedExpr);
-						groupExpr.splice(nestedExprStart, opIndex, nestedResult);
+						groupExpr.splice(nestedExprStart, opIndex - nestedExprStart, nestedResult);
+						opIndex = groupExpr.indexOf(orderOp);
 					}
 					// Expr group on the right
 					if (groupExpr[opIndex + 1] == 'LB') {
@@ -846,7 +847,8 @@ function evalExpression(expr) {
 						}
 						const nestedExpr = groupExpr.slice(opIndex + 1, nestedExprEnd + 1);
 						const nestedResult = evalGroup(nestedExpr);
-						groupExpr.splice(opIndex + 1, nestedExprEnd + 1, nestedResult);
+						groupExpr.splice(opIndex + 1, nestedExprEnd - opIndex + 1, nestedResult);
+						opIndex = groupExpr.indexOf(orderOp);
 					}
 					// If there is a number on both sides
 					if (groupExpr[opIndex - 1] != 'RB' && groupExpr[opIndex + 1] != 'LB' &&
