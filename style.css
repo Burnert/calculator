@@ -1,0 +1,270 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&family=Source+Code+Pro:wght@400;500&display=swap');
+
+* {
+	font-family: 'Roboto Mono', monospace;
+
+	margin: 0;
+	padding: 0;
+	outline: none;
+	box-sizing: border-box;
+}
+body {
+	background-color: rgb(26, 26, 26);
+}
+input, select {
+	display: block;
+}
+
+.calc {
+	width: fit-content;
+
+	margin: 40px auto;
+	padding: 4px;
+
+	background-image: url(bg.png);
+
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	box-shadow: 3px 3px 22px rgba(0, 0, 0, 0.4);
+}
+
+/* Input section */
+.input-section {
+	display: flex;
+	flex-direction: column;
+}
+.input-section .button-row {
+	display: flex;
+}
+
+/* Type section */
+.base-section {
+	display: flex;
+	flex-direction: column;
+
+	padding: 10px 0;
+}
+
+/* Options section */
+.options-section {
+	display: flex;
+}
+
+/* Button component */
+.calc-button {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+
+	font-family: 'Source Code Pro', monospace;
+	font-weight: 500;
+	font-size: 28px;
+
+	width: 96px;
+	height: 56px;
+	line-height: 56px;
+	text-align: center;
+
+	margin: 2px;
+
+	border-color: rgba(255, 255, 255, 0.0);
+
+	box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+
+	color: white;
+
+	user-select: none;
+
+	transition: 0.1s;
+}
+.calc-button.double {
+	width: 196px;
+}
+.calc-button.disabled {
+	color: rgba(255, 255, 255, 0.2);
+}
+.calc-button:not(.disabled):hover {
+	border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.calc-button .addition {
+	position: absolute;
+	left: 62px;
+	top: 10px;
+
+	font-weight: 400;
+	font-size: 18px;
+
+	color: rgba(255, 255, 255, 0.6);
+}
+
+
+/* Display component */
+.display {
+	font-family: 'Roboto Mono', monospace;
+
+	text-align: right;
+
+	color: white;
+}
+/* Expression display */
+.display .expression {
+	font-size: 20px;
+
+	white-space: nowrap;
+	overflow-x: auto;
+	overflow-y: hidden;
+
+	width: 600px;
+	height: 40px;
+	line-height: 40px;
+
+	padding: 0 20px;
+
+	color: rgba(255, 255, 255, 0.7);
+}
+/* Number display */
+.display .number-input {
+	font-size: 50px;
+
+	white-space: nowrap;
+	overflow-x: auto;
+	overflow-y: hidden;
+
+	width: 600px;
+	height: 100px;
+	line-height: 100px;
+
+	padding: 0 20px;
+}
+
+/* Base select button component */
+.base-select-button {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	position: relative;
+
+	font-family: 'Roboto Mono', monospace;
+	font-size: 20px;
+	
+	width: 100%;
+	max-width: 600px;
+	height: 38px;
+	line-height: 18px;
+
+	padding: 6px 20px;
+
+	color: white;
+
+	user-select: none;
+
+	transition: 0.1s;
+}
+.base-select-button .active-marker {
+	display: none;
+	position: absolute;
+	left: 0;
+}
+.base-select-button.active .active-marker {
+	display: block;
+
+	width: 8px;
+	height: 22px;
+}
+.base-select-button span {
+	display: block;
+}
+.base-select-button .base {
+	width: fit-content;
+}
+.base-select-button .number {
+	font-weight: 400;
+
+	margin-left: 30px;
+
+	color: rgba(255, 255, 255, 0.7);
+}
+
+/* Option button */
+.option-button {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	font-family: 'Roboto Mono', monospace;
+	font-weight: 400;
+	font-size: 20px;
+
+	width: 96px;
+	height: 46px;
+	line-height: 46px;
+	text-align: center;
+
+	margin: 2px;
+
+	border-color: rgba(255, 255, 255, 0.0);;
+
+	color: white;
+
+	user-select: none;
+
+	transition: 0.1s;
+}
+.option-button:not(.disabled):hover {
+	border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Error */
+.undef {
+	letter-spacing: -0.08em;
+
+	color: rgba(255, 0, 0, 0.9);
+}
+
+/* Colours */
+.bg-default {
+	background-color: rgba(8, 8, 8, 0.6);
+}
+.bg-default:not(.disabled):hover {
+	background-color: rgb(56, 56, 56);
+}
+.bg-default:not(.disabled):active {
+	background-color: rgb(73, 73, 73);
+}
+
+.bg-primary {
+	background-color: rgba(231, 151, 1, 0.66);
+}
+.bg-primary:not(.disabled):hover {
+	background-color: rgb(235, 154, 5);
+	border-color: rgb(255, 199, 96);
+}
+.bg-primary:not(.disabled):active {
+	background-color: rgb(255, 166, 0);
+	border-color: rgb(255, 199, 96);
+}
+
+.bg-black {
+	background-color: rgba(4, 4, 4, 0.85);
+}
+.bg-black:not(.disabled):hover {
+	background-color: rgb(63, 63, 63);
+}
+.bg-black:not(.disabled):active {
+	background-color: rgb(73, 73, 73);
+}
+
+.bg-transparent:not(.disabled):hover {
+	background-color: rgba(56, 56, 56, 0.5);
+}
+.bg-transparent:not(.disabled):active {
+	background-color: rgba(73, 73, 73, 0.8);
+}
+
+.bg-transparent-simple:not(.disabled):hover {
+	background-color: rgb(56, 56, 56);
+}
+
+.bg-primary-simple {
+	background-color: rgb(255, 166, 0);
+}
