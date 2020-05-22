@@ -456,12 +456,14 @@ function insertBracket(type) {
 				if (!nextNumber) {
 					fullExpression.push(currentNumber);
 					fullExpression.push('MUL');
+					nextNumber = true;
 				}
 				fullExpression.push('LB');
 			}
 			else if (getLastExprElement(fullExpression) == 'RB' || typeof getLastExprElement(fullExpression) == 'number') {
 				fullExpression.push('MUL');
 				fullExpression.push('LB');
+				nextNumber = true;
 			}
 		}
 		else if (type == 'RB') {
@@ -576,7 +578,7 @@ function finishExpression() {
 		if (hasDoubleOperandOperation) {
 			lastOperation = lastOp;
 		}
-		cachedExpression = stringifyExpression(fullExpression);
+		cachedExpression = stringifyExpression([...fullExpression, currentNumber]);
 		fullExpression = [];
 	};
 }
@@ -680,21 +682,25 @@ function copyToClipboard(str) {
 function copyCurrentNumber(info) {
 	return e => {
 		copyToClipboard(getBaseFromNumber(currentNumber, currentBase));
-		showInfoBox(info, { x: e.clientX, y: e.clientY });
+		showInfoBox('Copied to clipboard!', { x: e.clientX, y: e.clientY });
 	};
 }
 function copyExpression(info) {
 	return e => {
 		copyToClipboard(cachedExpression);
-		showInfoBox(info, { x: e.clientX, y: e.clientY });
+		showInfoBox('Copied expression to clipboard!', { x: e.clientX, y: e.clientY });
 	}
 }
 
 // Visual
 
-function showInfoBox(box, position) {
+function showInfoBox(message, position) {
+	const box = html('div')
+	.addClass('info-floating')
+	.content(message)
+	.appendTo(document.body);
 	box.setStyle('display', 'flex');
-	box.setStyle('left', `${position.x}px`).setStyle('top', `${position.y}px`);
+	box.setStyle('left', `${position.x - box.offsetWidth}px`).setStyle('top', `${position.y}px`);
 	setTimeout(() => {
 		box.setStyle('opacity', '1');
 	}, 10);
@@ -702,6 +708,7 @@ function showInfoBox(box, position) {
 		box.setStyle('opacity', '0');
 		setTimeout(() => {
 			box.setStyle('display', 'none');
+			box.remove();
 		}, 300);
 	}, 2000);
 }
@@ -773,7 +780,6 @@ function evalExpression(expr) {
 	const evalGroup = (groupExpr, debug = false) => {
 		// Evaluate single operand functions
 		const evalSingleOperand = (index, op) => {
-			// TODO: fix single operand ops in brackets
 			// if operation isn't placed right at the end
 			if (index < groupExpr.length - 1) {
 				let value = 0;
@@ -795,12 +801,13 @@ function evalExpression(expr) {
 					const groupResult = evalGroup(expr2);
 					groupExpr.splice(index + 1, exprEnd - index);
 					value = operation(op)(groupResult);
+					groupExpr.splice(index, 1);
 				}
 				// if a number is after it
 				else {
 					value = operation(op)(groupExpr[index + 1]);
+					groupExpr.splice(index, 2);
 				}
-				groupExpr.splice(index, 1);
 				numIndex = index
 				return [value, numIndex];
 			}
@@ -810,7 +817,7 @@ function evalExpression(expr) {
 			const index = groupExpr.findIndex(val => isOperationSingleOperand(val));
 			if (index == -1) break;
 			const [value, numIndex] = evalSingleOperand(index, groupExpr[index]);
-			groupExpr[numIndex] = value;
+			groupExpr.splice(numIndex, 0, value);
 			groupExpr = groupExpr.filter(value => value != '#DELETE');
 		}
 
@@ -1202,14 +1209,6 @@ document.addEventListener('DOMContentLoaded', e => {
 			.content(commonBitNumbers.names[optBitNumber])
 			.appendTo(optionsSection);
 		case 'Copy':
-			const infoCopy = html('div')
-			.addClass('info-floating')
-			.content('Copied to clipboard!')
-			.appendTo(document.body);
-			const infoExpr = html('div')
-			.addClass('info-floating')
-			.content('Copied expression to clipboard!')
-			.appendTo(document.body);
 			return html('div')
 			.addClass('option-double-container')
 			.content(
@@ -1218,7 +1217,7 @@ document.addEventListener('DOMContentLoaded', e => {
 				.addClass('half')
 				.addClass('bg-transparent')
 				.addAttribute('title', 'Copy to clipboard')
-				.runFunc(button => button.onClick(copyCurrentNumber(infoCopy)))
+				.runFunc(button => button.onClick(copyCurrentNumber()))
 				.content(
 					html('i')
 					.addClass('icon-docs'),
@@ -1227,8 +1226,8 @@ document.addEventListener('DOMContentLoaded', e => {
 				.addClass('option-button')
 				.addClass('half')
 				.addClass('bg-transparent')
-				.addAttribute('title', 'Copy expression')
-				.runFunc(button => button.onClick(copyExpression(infoExpr)))
+				.addAttribute('title', 'Copy expression to clipboard')
+				.runFunc(button => button.onClick(copyExpression()))
 				.content(
 					html('span')
 					.addClass('icon-hashtag')
