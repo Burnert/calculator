@@ -78,7 +78,7 @@ input, select {
 	-ms-user-select: none;
 	-webkit-user-select: none;
 
-	transition: 0.1s;
+	transition: background 0.1s;
 }
 .calc-button.double {
 	width: 196px;
@@ -199,15 +199,20 @@ input, select {
 	transition: 0.1s;
 }
 .base-select-button .active-marker {
-	display: none;
+	display: block;
 	position: absolute;
 	left: 0;
+
+	width: 0px;
+	height: 22px;
+
+	transition: 0.1s;
 }
 .base-select-button.active .active-marker {
-	display: block;
-
 	width: 8px;
 	height: 22px;
+
+	transition: 0.1s;
 }
 .base-select-button span {
 	display: block;
@@ -242,17 +247,20 @@ input, select {
 
 	border-color: rgba(255, 255, 255, 0.0);;
 
-	color: white;
+	color: rgba(255, 255, 255, 0.8);
 
 	user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
 	-webkit-user-select: none;
 
-	transition: 0.1s;
+	transition: background 0.1s;
 }
 .option-button:not(.disabled):hover {
 	border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.option-button:not(.disabled):active {
+	color: rgba(255, 255, 255);
 }
 .option-button.half {
 	width: 44px;
