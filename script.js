@@ -557,6 +557,7 @@ function eraseEntry() {
 		else {
 			currentNumber = getNumberFromBase(strErased, currentBase);
 		}
+		nextNumber = false;
 		updateClearButton();
 		updateEveryDisplay();
 		initDisplayScroll();
