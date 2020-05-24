@@ -780,7 +780,7 @@ function operation(op) {
 	case 'MUL':
 		return (a, b) => a * b;
 	case 'DIV':
-		return (a, b) => Math.trunc(a / b);
+		return (a, b) => b == 0 ? undefined : Math.trunc(a / b);
 	case 'MOD':
 		return (a, b) => Math.mod(a, b);
 	case 'AND':
@@ -849,7 +849,7 @@ function evalExpression(expr) {
 					value = operation(op)(groupExpr[index + 1]);
 					groupExpr.splice(index, 2);
 				}
-				numIndex = index
+				numIndex = index;
 				return [value, numIndex];
 			}
 			return undefined;
@@ -914,6 +914,9 @@ function evalExpression(expr) {
 
 		while (groupExpr.length) {
 			const part = groupExpr.shift();
+			if (part == undefined) {
+				return undefined;
+			}
 			if (typeof last == 'number' && typeof part == 'number') {
 				// Log error
 				console.error('2 numbers side-by-side are not allowed in an expression!', [last, part, ...groupExpr]);
@@ -929,7 +932,7 @@ function evalExpression(expr) {
 						expr1.pop();
 					}
 					expr1.push('RB');
-					groupEnd = expr.length - 1
+					groupEnd = expr.length - 1;
 				}
 				// Cut out the group without the brackets
 				const expr2 = expr1.slice(1, groupEnd);
