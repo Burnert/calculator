@@ -887,7 +887,7 @@ function evalExpression(expr) {
 						}
 						const nestedExpr = groupExpr.slice(opIndex + 1, nestedExprEnd + 1);
 						const nestedResult = evalGroup(nestedExpr);
-						groupExpr.splice(opIndex + 1, nestedExprEnd - opIndex + 1, nestedResult);
+						groupExpr.splice(opIndex + 1, nestedExprEnd - opIndex, nestedResult);
 						opIndex = groupExpr.indexOf(orderOp);
 					}
 					// If there is a number on both sides
